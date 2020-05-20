@@ -70,3 +70,35 @@ Now We will add some method in homeController:
 * "/admin" : For "ADMIN" role
 
 Now these url can be accessed based on user role.
+
+#### JDBC JPA Role Based Authentication
+
+Firstly We will add a couple of dependency:
+```
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+```
+Adding some properties in application properties file:
+```
+spring.datasource.url = jdbc:mysql://localhost:3306/app_db?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+spring.datasource.username = root
+spring.datasource.password = P@ssw0rd
+
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.show-sql=true
+```
+Adding Entity class, Repository class, service class, ......
+This project is available at "jpa-jdbc-role-based" branch.
