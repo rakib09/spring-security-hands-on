@@ -48,3 +48,25 @@ Spring Security need a PasswordEncoder bean for encoding password. Hence, We wil
 Spring security will create two user (admin, user) with the given password & role at the startup of the project.
 
 Note That: Spring security have a logout endpoint. We can logout by using "/logout" url.
+
+#### In Memory Authorization
+Now We will add Authorization- role wise access management.
+
+Firstly We will add override method "protected void configure(HttpSecurity http)" in spring security configuration & Add user role wise url access like below:
+```
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests()
+				.antMatchers("/admin").hasRole("ADMIN")
+				.antMatchers("/user").hasAnyRole("USER", "ADMIN")
+				.antMatchers("/").permitAll()
+				.and()
+				.formLogin();
+	}
+```
+Now We will add some method in homeController:
+* "/" : For All User
+* "/user" : For "USER" role
+* "/admin" : For "ADMIN" role
+
+Now these url can be accessed based on user role.
