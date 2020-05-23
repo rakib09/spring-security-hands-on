@@ -7,9 +7,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	private final BasicAuthenticationEntryPoint authenticationEntryPoint;
+
+	public SecurityConfiguration(BasicAuthenticationEntryPoint authenticationEntryPoint) {
+		this.authenticationEntryPoint = authenticationEntryPoint;
+	}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -30,7 +39,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers("/user").hasAnyRole("USER", "ADMIN")
 				.antMatchers("/").permitAll()
 				.and()
-				.formLogin();
+				.httpBasic()
+				.authenticationEntryPoint(authenticationEntryPoint);
+
+		http.addFilterAfter(new CustomFilter(),
+				BasicAuthenticationFilter.class);
 	}
 
 	@Bean
