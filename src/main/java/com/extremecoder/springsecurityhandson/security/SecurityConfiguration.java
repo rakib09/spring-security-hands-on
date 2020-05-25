@@ -1,22 +1,31 @@
 package com.extremecoder.springsecurityhandson.security;
 
 import com.extremecoder.springsecurityhandson.service.MyUserDetailService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private final MyUserDetailService userDetailsService;
+	private final DbFilterInvocationSecurityMetadataSource dbFilterInvocationSecurityMetadataSource;
+	private final UrlAccessDecisionManager urlAccessDecisionManager;
 
-	public SecurityConfiguration(MyUserDetailService userDetailsService) {
+	public SecurityConfiguration(
+			MyUserDetailService userDetailsService,
+			DbFilterInvocationSecurityMetadataSource dbFilterInvocationSecurityMetadataSource,
+			UrlAccessDecisionManager urlAccessDecisionManager) {
 		this.userDetailsService = userDetailsService;
+		this.dbFilterInvocationSecurityMetadataSource = dbFilterInvocationSecurityMetadataSource;
+		this.urlAccessDecisionManager = urlAccessDecisionManager;
 	}
 
 	@Override
@@ -26,12 +35,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests()
-				.antMatchers("/admin").hasRole("ADMIN")
-				.antMatchers("/user").hasAnyRole("ADMIN", "USER")
-				.antMatchers("/").permitAll()
-				.and()
-				.formLogin().permitAll();
+		ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry =
+				http.antMatcher("/**").authorizeRequests();
+
+		registry.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
+			@Override
+			public <O extends FilterSecurityInterceptor> O postProcess(O o) {
+				o.setSecurityMetadataSource(dbFilterInvocationSecurityMetadataSource);
+				o.setAccessDecisionManager(urlAccessDecisionManager);
+				return o;
+			}
+		});
+
+		registry.and().formLogin().permitAll();
+		registry.anyRequest().authenticated();
 	}
 
 	@Bean

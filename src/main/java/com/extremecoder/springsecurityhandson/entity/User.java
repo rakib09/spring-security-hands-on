@@ -36,23 +36,8 @@ public class User implements Serializable {
 	@Column(nullable = false)
 	private Boolean isEnabled = true;
 
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(
-			name = "user_role",
-			joinColumns = { @JoinColumn(name = "user_id", nullable = false, updatable = false) },
-			inverseJoinColumns = { @JoinColumn(name = "role_id", nullable = false, updatable = false) }
-			)
-	private Set<Role> roles = new HashSet<Role>();
-
-	public User(String username, String password, Set<Role> roles) {
+	public User(String username, String password) {
 		this.username = username;
 		this.password = password;
-		this.roles = roles;
-	}
-
-	public User(String username, String password, Role role) {
-		this.username = username;
-		this.password = password;
-		this.roles = Collections.singleton(role);
 	}
 }

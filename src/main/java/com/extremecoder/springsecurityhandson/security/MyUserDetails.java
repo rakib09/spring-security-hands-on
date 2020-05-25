@@ -2,6 +2,7 @@ package com.extremecoder.springsecurityhandson.security;
 
 import com.extremecoder.springsecurityhandson.entity.Role;
 import com.extremecoder.springsecurityhandson.entity.User;
+import com.extremecoder.springsecurityhandson.entity.UserRole;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,20 +14,21 @@ import java.util.*;
 
 public class MyUserDetails implements UserDetails {
 
+	private List<UserRole> userRoles;
 	private User user;
 
-	public MyUserDetails(User user) {
-		this.user = user;
+	public MyUserDetails(List<UserRole> userRoles) {
+		this.userRoles = userRoles;
+		this.user = userRoles.stream().map(UserRole::getUser).findFirst().orElse(null);
 	}
 
 	@Transactional
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Set<Role> roleList = user.getRoles();
 		List<GrantedAuthority> grantList = new ArrayList<GrantedAuthority>();
-		if (!CollectionUtils.isEmpty(roleList)) {
-			for (Role role : roleList) {
-				GrantedAuthority authority = new SimpleGrantedAuthority(role.getName());
+		if (!CollectionUtils.isEmpty(userRoles)) {
+			for (UserRole userRole : userRoles) {
+				GrantedAuthority authority = new SimpleGrantedAuthority(userRole.getRole().getName());
 				grantList.add(authority);
 			}
 		}
