@@ -3,18 +3,24 @@ package com.extremecoder.springsecurityhandson.controller;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/api/home")
 public class HomeController {
 
-	@GetMapping("/")
-	public String hello() {
+	@GetMapping("/welcome")
+	public String Welcome() {
 		return "Welcome";
+	}
+
+	//  /path/12?var=value
+	@GetMapping("/path/{pathId}")
+	public String pathAndParam(@PathVariable("pathId") Long pathId, @RequestParam("var") String var) {
+		return "Welcome " + pathId + " " + var;
 	}
 
 	@GetMapping("/admin")

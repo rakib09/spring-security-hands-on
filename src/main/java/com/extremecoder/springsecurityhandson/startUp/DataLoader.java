@@ -52,18 +52,25 @@ public class DataLoader implements ApplicationRunner {
                 userRoleRepository.save(new UserRole(admin, roleOfAdmin)));
 
 
-        Permission adminPermission = permissionRepository.findByUrl("/admin")
-                .orElse(permissionRepository.save(new Permission("/admin")));
+        Permission adminPermission = permissionRepository.findByUrl("/api/home/admin")
+                .orElse(permissionRepository.save(new Permission("/api/home/admin")));
 
-        Permission userPermission = permissionRepository.findByUrl("/user")
-                .orElse(permissionRepository.save(new Permission("/user")));
+        Permission pathPermission = permissionRepository.findByUrl("/api/home/path")
+                .orElse(permissionRepository.save(new Permission("/api/home/path")));
+
+        Permission userPermission = permissionRepository.findByUrl("/api/home/user")
+                .orElse(permissionRepository.save(new Permission("/api/home/user")));
 
         rolePermissionRepository.findByPermission(adminPermission).orElse(
                 rolePermissionRepository.save(
                         new RolePermission(roleOfAdmin, adminPermission)
                 )
         );
-
+        rolePermissionRepository.findByPermission(adminPermission).orElse(
+                rolePermissionRepository.save(
+                        new RolePermission(roleOfAdmin, pathPermission)
+                )
+        );
 
     }
 }
